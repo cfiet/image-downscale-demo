@@ -41,7 +41,7 @@
 
           if(step >= steps) {
             canvas.style.display = "block";
-            console.timeEnd(name);
+            console && console.timeEnd && console.timeEnd(name);
             return;
           } else {
             var i = new Image();
@@ -50,7 +50,7 @@
         }
       }
 
-      console.time(name);
+      console && console.time && console.time(name);
       scaleDown(image, 1);
     }
   </script>
@@ -121,7 +121,7 @@
         return;
       }
 
-      console.log("Running resize for " + name);
+      console && console.log("Running resize for " + name);
       var image = new Image();
       image.src = "img/text-" + name + ".png";
       image.onload = downScale.bind(image, image, name, 500, 708, document.getElementById("downscale-" + name), value);
