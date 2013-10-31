@@ -1,0 +1,148 @@
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Image scaling</title>
+
+  <meta name="viewport" content="width=device-width">
+
+  <!--
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+  <link href="css/app.css" rel="stylesheet">
+
+  <script src="javascripts/vendor.js"></script>
+  <script src="javascripts/app.js" onload="require('naughts');"></script>
+  -->
+  <script>
+    function downScale(image, name, w, h, canvas, steps) {
+      var w_diff = (image.width - w) / steps,
+        h_diff = (image.height - h) / steps,
+        name = "downscale " + name + " " + steps;
+
+
+        function scaleDown(image, step) {
+          canvas.style.display = "none";
+
+          var w_current  = image.width - w_diff,
+            h_current = image.height - h_diff,
+            context;
+
+          if(w_diff < 1 || h_diff < 1) {
+            setTimeout(downscale.bind(window, w, h, canvas, steps-1), 0);
+            return;
+          }
+
+          canvas.width = w_current;
+          canvas.height = h_current;
+
+          context = canvas.getContext("2d");
+          context.drawImage(image, 0, 0, w_current, h_current);
+
+          if(step >= steps) {
+            canvas.style.display = "block";
+            console.timeEnd(name);
+            return;
+          } else {
+            var i = new Image();
+            i.src = canvas.toDataURL();
+            i.onload = scaleDown.bind(i, i, step+1);
+        }
+      }
+
+      console.time(name);
+      scaleDown(image, 1);
+    }
+  </script>
+</head>
+<body width="100%">
+  <div style="clear: both">
+    <input type="checkbox" id="run-ldpi" checked /><label for="run-ldpi">Low DPI image</label><br />
+    <input type="checkbox" id="run-mdpi" /><label for="run-mdpi">Medium DPI image</label><br />
+    <input type="checkbox" id="run-hdpi" /><label for="run-hdpi">High DPI image</label><br />
+    <label for="downscaleFactory">Smoothing</label><input type="text" id="downscaleFactor" value="4">
+  </div>
+
+  <div style="clear: both;">
+    <h1>Low DPI</h1>
+    <div style="float:left">
+      Original downscaled <br/>
+      <img src="img/text-ldpi.png" width="500" />
+    </div>
+    <div style="float:left">
+      Original downscaled + identity transform <br/>
+      <img src="img/text-ldpi.png" width="500" style="transform: scale(1.0);" /><br />
+    </div>
+    <div style="float:left">
+      Canvas downscale <br />
+      <canvas id="downscale-ldpi" width="500"/>
+    </div>
+  </div>
+
+  <div style="clear: both;">
+    <h1>Medium DPI</h1>
+    <div style="float:left">
+      Original downscaled <br/>
+      <img src="img/text-mdpi.png" width="500" />
+    </div>
+    <div style="float:left">
+      Original downscaled + identity transform <br/>
+      <img src="img/text-mdpi.png" width="500" style="transform: scale(1.0);" /><br />
+    </div>
+    <div style="float:left">
+      Canvas downscale <br />
+      <canvas id="downscale-mdpi" width="500"/>
+    </div>
+  </div>
+
+  <div style="clear: both;">
+    <h1>High DPI</h1>
+    <div style="float:left">
+      Original downscaled <br/>
+      <img src="img/text-hdpi.png" width="500" />
+    </div>
+    <div style="float:left">
+      Original downscaled + identity transform <br/>
+      <img src="img/text-hdpi.png" width="500" style="transform: scale(1.0);" /><br />
+    </div>
+    <div style="float:left">
+      Canvas downscale <br />
+      <canvas id="downscale-hdpi" width="500"/>
+    </div>
+  </div>
+</body>
+<script>
+  var inp = document.getElementById("downscaleFactor");
+
+  inp.onkeyup = function () {
+    function resize(name) {
+      var cb = document.getElementById("run-" + name);
+      if(!cb.checked) {
+        return;
+      }
+
+      console.log("Running resize for " + name);
+      var image = new Image();
+      image.src = "img/text-" + name + ".png";
+      image.onload = downScale.bind(image, image, name, 500, 708, document.getElementById("downscale-" + name), value);
+    }
+
+    var value = parseInt(inp.value, 10);
+
+    if(!value) {
+      return;
+    }
+
+    setTimeout(resize.bind(window, "ldpi"), 0);
+    setTimeout(resize.bind(window, "mdpi"), 0);
+    setTimeout(resize.bind(window, "hdpi"), 0);
+  }
+
+  document.getElementById("run-ldpi").onclick = inp.onkeyup;
+  document.getElementById("run-mdpi").onclick = inp.onkeyup;
+  document.getElementById("run-hdpi").onclick = inp.onkeyup;
+
+
+  inp.onkeyup();
+</script>
+</html>
